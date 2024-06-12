@@ -10,6 +10,6 @@ class PageController extends Controller
     {
         // Точка используется вместо /.
         // То есть шаблон находится по пути resources/views/layouts/about.blade.php
-        return view('layouts.about');
+        return view('views.about');
     }
 }
