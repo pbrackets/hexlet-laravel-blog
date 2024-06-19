@@ -21,7 +21,28 @@ class ArticleController extends Controller
         $article = Article::findOrFail($id);
         return view('article.show', compact('article'));
     }
+    public function edit($id)
+    {
+        $article = Article::findOrFail($id);
+        return view('article.edit', compact('article'));
+    }
 
+    public function update(Request $request, $id)
+    {
+        $article = Article::findOrFail($id);
+        $data = $this->validate($request, [
+            // У обновления немного измененная валидация
+            // В проверку уникальности добавляется название поля и id текущего объекта
+            // Если этого не сделать, Laravel будет ругаться, что имя уже существует
+            'name' => 'required|unique:articles,name,' . $article->id,
+            'body' => 'required|min:100',
+        ]);
+
+        $article->fill($data);
+        $article->save();
+        return redirect()
+            ->route('articles.index');
+    }
 
     // Вывод формы
     public function create()
@@ -53,5 +74,18 @@ class ArticleController extends Controller
         return redirect()
             ->route('articles.index');
     }
+
+    // Не забывайте про авторизацию (здесь не рассматривается)
+    // Удаление должно быть доступно только тем, кто может его выполнять
+    public function destroy($id)
+    {
+        // DELETE — идемпотентный метод, поэтому результат операции всегда один и тот же
+        $article = Article::find($id);
+        if ($article) {
+            $article->delete();
+        }
+        return redirect()->route('articles.index');
+    }
+
 }
 
